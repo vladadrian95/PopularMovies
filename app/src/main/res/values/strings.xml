@@ -14,5 +14,7 @@
         <item>popularity.desc</item>
         <item>vote_average.desc</item>
     </string-array>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

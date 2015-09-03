@@ -1,6 +1,7 @@
 package com.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -36,9 +37,14 @@ import java.net.URL;
  */
 public class MainActivityFragment extends Fragment {
 
+    private final String your_personal_api_key = ""; //if you use the code of this app insert your themoviedb.org API key here
     private ImageAdapter mImageAdapter;
     private GridView mGridView;
-    private String[] mMoviesIDs;
+    private String[] mMovieID;
+    private String[] mMovieTitle;
+    private String[] mMoviePlot;
+    private String[] mMovieRating;
+    private String[] mMovieDate;
 
     public MainActivityFragment() {
     }
@@ -77,8 +83,13 @@ public class MainActivityFragment extends Fragment {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String text = "You taped on a picture";
-                Toast.makeText(getActivity(),text,Toast.LENGTH_SHORT).show();
+                Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
+                detailIntent.putExtra("POSTER",mImageAdapter.getItem(position));
+                detailIntent.putExtra("TITLE",mMovieTitle[position]);
+                detailIntent.putExtra("PLOT",mMoviePlot[position]);
+                detailIntent.putExtra("RATING",mMovieRating[position]);
+                detailIntent.putExtra("DATE",mMovieDate[position]);
+                startActivity(detailIntent);
             }
         });
 
@@ -113,25 +124,30 @@ public class MainActivityFragment extends Fragment {
     private class DownloadData extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = DownloadData.class.getSimpleName();
+        private String[] mIDs;
+        private String[] mTitle;
+        private String[] mPlot;
+        private String[] mRating;
+        private String[] mDate;
 
         @Override
         protected String[] doInBackground(String... params) {
-            //if we don't have input params then this is the end of our journey
+            // If we don't have input params then this is the end of our journey
             if (params.length == 0) {
                 return null;
             }
-            //now let's add some variables that we'll need
+            // Now let's add some variables that we'll need
             HttpURLConnection urlConnection = null;
             BufferedReader reader;
             String dataJSONStr = null;
             String postersString[];
 
-            //and now the fun begins
+            // The app will now try to connect to themoviedb.org
             try {
+                // Builds the url
                 final String DATA_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
                 final String SORT_PARAM = "sort_by";
                 final String API_KEY = "api_key";
-                final String your_personal_api_key = ""; //if you use the code of this app insert your themoviedb.org API key here
 
                 Uri builtUri = Uri.parse(DATA_BASE_URL).buildUpon().
                         appendQueryParameter(SORT_PARAM,params[0]).
@@ -139,7 +155,7 @@ public class MainActivityFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                // Create the request to OpenWeatherMap, and open the connection
+                // Create the request to themoviedb.org, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -169,7 +185,7 @@ public class MainActivityFragment extends Fragment {
                 postersString = getPosterDataFromJSON(dataJSONStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
+                // If the code didn't successfully get the data, there's no point in attemping
                 // to parse it.
                 return null;
             } catch (JSONException e) {
@@ -187,22 +203,43 @@ public class MainActivityFragment extends Fragment {
             mImageAdapter.setThumbsString(result);
             mImageAdapter.notifyDataSetChanged();
             mGridView.setAdapter(mImageAdapter);
+            mMovieID = mIDs;
+            mMovieTitle = mTitle;
+            mMoviePlot = mPlot;
+            mMovieRating = mRating;
+            mMovieDate = mDate;
         }
 
         private String[] getPosterDataFromJSON(String dataJSON) throws JSONException {
-            final String OWM_RESULTS = "results";
-            final String OWM_POSTER = "poster_path";
-            final String url = "http://image.tmdb.org/t/p/w185";
+            final String RESULTS = "results";
+            final String POSTER = "poster_path";
+            final String ID = "id";
+            final String TITLE = "original_title";
+            final String PLOT = "overview";
+            final String RATING = "vote_average";
+            final String DATE = "release_date";
+            final String poster_url = "http://image.tmdb.org/t/p/w342";
+            final String id_url = "http://api.themoviedb.org/3/movie/";
 
             JSONObject inputJSON = new JSONObject(dataJSON);
-            JSONArray moviesArray = inputJSON.getJSONArray(OWM_RESULTS);
+            JSONArray moviesArray = inputJSON.getJSONArray(RESULTS);
 
             String[] posters = new String[moviesArray.length()];
+            mIDs = new String[moviesArray.length()];
+            mTitle = new String[moviesArray.length()];
+            mPlot = new String[moviesArray.length()];
+            mRating = new String[moviesArray.length()];
+            mDate = new String[moviesArray.length()];
             for (int i = 0; i < moviesArray.length(); i++) {
                 String poster;
                 JSONObject movieJSON = moviesArray.getJSONObject(i);
-                poster = movieJSON.getString(OWM_POSTER);
-                posters[i] = url + poster;
+                poster = movieJSON.getString(POSTER);
+                posters[i] = poster_url + poster;
+                mIDs[i] = id_url + movieJSON.getString(ID) + "?api_key=" + your_personal_api_key;
+                mTitle[i] = movieJSON.getString(TITLE);
+                mPlot[i] = movieJSON.getString(PLOT);
+                mRating[i] = movieJSON.getString(RATING);
+                mDate[i] = movieJSON.getString(DATE);
             }
 
             return posters;

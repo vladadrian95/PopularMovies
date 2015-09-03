@@ -30,8 +30,8 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public String getItem(int position) {
+        return mThumbsString[position];
     }
 
     @Override
