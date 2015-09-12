@@ -40,11 +40,11 @@ public class DetailActivityFragment extends Fragment {
 
         // Display movie details
         ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(mOriginalTitle);
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.imageViewPoster);
         Picasso.with(getActivity()).load(mPosterURL).into(imageView);
-        ((TextView) rootView.findViewById(R.id.textViewPlot)).setText(mPlot);
         ((TextView) rootView.findViewById(R.id.textViewRating)).setText(mRating);
         ((TextView) rootView.findViewById(R.id.textViewDate)).setText(mReleaseDate);
+        ((TextView) rootView.findViewById(R.id.textViewPlot)).setText(mPlot);
 
         return rootView;
     }

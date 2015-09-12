@@ -4,6 +4,7 @@
     <string name="action_refresh">Refresh</string>
     <string name="order_by_title">Order movies by</string>
     <string name="order_by_default">popularity.desc</string>
+    <string name="title_activity_detail">Details</string>
 
     <string-array name="order_by">
         <item>most popular</item>
@@ -14,7 +15,5 @@
         <item>popularity.desc</item>
         <item>vote_average.desc</item>
     </string-array>
-    <string name="title_activity_detail">DetailActivity</string>
-    <string name="hello_world">Hello world!</string>
 
 </resources>
