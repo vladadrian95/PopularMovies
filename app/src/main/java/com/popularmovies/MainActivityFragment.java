@@ -1,5 +1,6 @@
 package com.popularmovies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,6 +46,7 @@ public class MainActivityFragment extends Fragment {
     private String[] mMoviePlot;
     private String[] mMovieRating;
     private String[] mMovieDate;
+    OnHeadlineSelectedListener mCallback;
 
     public MainActivityFragment() {
     }
@@ -83,19 +85,15 @@ public class MainActivityFragment extends Fragment {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
-                detailIntent.putExtra("POSTER",mImageAdapter.getItem(position));
-                detailIntent.putExtra("TITLE",mMovieTitle[position]);
-                detailIntent.putExtra("PLOT",mMoviePlot[position]);
-                detailIntent.putExtra("RATING",mMovieRating[position]);
-                detailIntent.putExtra("DATE",mMovieDate[position]);
-                startActivity(detailIntent);
+                mCallback.onArticleSelected(mImageAdapter.getItem(position), mMovieTitle[position], mMoviePlot[position],
+                        mMovieRating[position],mMovieDate[position]);
             }
         });
 
         return rootView;
     }
 
+    //update the data from themoviedb.org
     private void updateData() {
         DownloadData dd = new DownloadData();
         if (isNetworkAvailable()) {
@@ -108,6 +106,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    //check if internet is available
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -121,6 +120,27 @@ public class MainActivityFragment extends Fragment {
         updateData();
     }
 
+    // Container Activity must implement this interface
+    public interface OnHeadlineSelectedListener {
+        public void onArticleSelected(String poster, String title, String plot, String rating, String date);
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnHeadlineSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    //this class handles all the data download in background
     private class DownloadData extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = DownloadData.class.getSimpleName();

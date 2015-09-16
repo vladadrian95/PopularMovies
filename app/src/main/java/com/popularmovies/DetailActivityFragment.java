@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -30,13 +31,28 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView =  inflater.inflate(R.layout.fragment_detail, container, false);
 
-        // Receive data from intent
-        Intent intent = getActivity().getIntent();
-        String mPosterURL = intent.getStringExtra("POSTER");
-        String mOriginalTitle = intent.getStringExtra("TITLE");
-        String mPlot = intent.getStringExtra("PLOT");
-        String mRating = intent.getStringExtra("RATING");
-        String mReleaseDate = intent.getStringExtra("DATE");
+        String mPosterURL;
+        String mOriginalTitle;
+        String mPlot;
+        String mRating;
+        String mReleaseDate;
+
+        // Read arguments
+        if (getArguments() == null) {
+            Intent intent = getActivity().getIntent();
+            mPosterURL = intent.getStringExtra("POSTER");
+            mOriginalTitle = intent.getStringExtra("TITLE");
+            mPlot = intent.getStringExtra("PLOT");
+            mRating = intent.getStringExtra("RATING");
+            mReleaseDate = intent.getStringExtra("DATE");
+
+        } else {
+            mPosterURL = getArguments().getString("POSTER-ARG");
+            mOriginalTitle = getArguments().getString("TITLE-ARG");
+            mPlot = getArguments().getString("PLOT-ARG");
+            mRating = getArguments().getString("RATING-ARG");
+            mReleaseDate = getArguments().getString("DATE-ARG");
+        }
 
         // Display movie details
         ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(mOriginalTitle);
